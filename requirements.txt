@@ -1,0 +1,4 @@
+git+https://github.com/Rapptz/discord.py
+discord.py~=1.7.3
+pytz~=2020.5
+Flask~=2.0.1
