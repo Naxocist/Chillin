@@ -6,6 +6,7 @@ from animelist import *
 import pytz
 import discord
 import asyncio
+import os
 
 # Initialize bot client
 client = commands.Bot(command_prefix=".",
@@ -69,4 +70,5 @@ async def anime(ctx):
 
 
 alive()
-client.run('ODc3NDI1Mzg0ODY0NTAxNzYw.YRycEQ.qLrJI_seoWMFxZ6dk3O83pCY568')
+TOKEN = os.environ.get('TOKEN')
+client.run(TOKEN)
