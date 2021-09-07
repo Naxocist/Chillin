@@ -5,8 +5,16 @@ from datetime import *
 from animelist import *
 import pytz
 import discord
-import asyncio
 import os
+import asyncio
+
+gif_list = ["https://www.icegif.com/wp-content/uploads/icegif-10.gif",
+            "https://i.kym-cdn.com/photos/images/newsfeed/000/543/398/2f3.gif",
+            "https://c.tenor.com/dXeGgnB4u_sAAAAM/dragon-woman-anime.gif",
+            "https://giffiles.alphacoders.com/398/3987.gif",
+            "https://static.zerochan.net/Gravity.Falls.full.2109794.gif",
+            "https://giffiles.alphacoders.com/140/14018.gif",
+            "https://acegif.com/wp-content/uploads/2020/07/anime-sleep.gif"]
 
 # Initialize bot client
 client = commands.Bot(command_prefix=".",
@@ -18,19 +26,18 @@ async def on_ready():
     print("Chillin' bot is ready for her duty!")
 
 
-@client.command()  # shows command
+@client.command(aliases=["commands"])  # shows command
 async def command(ctx):
     command = {
-        '.help': 'Display all command',
-        '.date': 'Show current date.',
-        '.anime': 'Random an anime for u. :)',
+        '.command': 'Show all commands',
+        '.date': 'Show current date and time',
+        '.anime': 'Somehow pick random anime',
 
     }
-    c = discord.Embed(title="Commands", color=discord.Colour.dark_blue())
-
+    c = discord.Embed(title="Commands", color=discord.Colour.random())
     for k, v in command.items():
-        c.add_field(name=k, value=v)
-        
+        c.add_field(name=k, value=v, inline=False)
+    c.set_thumbnail(url=choice(gif_list))
     await ctx.send(embed=c)
 
 
@@ -51,24 +58,22 @@ async def anime(ctx):
                           colour=discord.Colour.random())
 
     episode = "The movie" if ep[anime] == '1' else ep[anime]+" episodes"
-    ss = season[anime]
-
+    ss = "not specified" if episode == "The movie" else season[anime]
+    image = pic[anime]
+    ranked = rank[anime]
     embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
 
-    embed.add_field(name="Length", value=episode, inline=True)
+    embed.add_field(name="Genre", value=genre[anime], inline=False)
     embed.add_field(name="Season", value=ss, inline=True)
+    embed.add_field(name="Length", value=episode, inline=True)
+    embed.add_field(name=f"Ranked: #{ranked}", value="Check it out!", inline=False)
 
-    embed.set_thumbnail(url=f"{pic[anime]}")
-
-    embed.set_footer(text="Bot developed by Naxocist")
+    embed.set_thumbnail(url=choice(gif_list))
+    embed.set_image(url=image)
+    embed.set_footer(text="Database references from `MyAnimelist.net`")
 
     await ctx.send(embed=embed)
 
-
-# @client.command()
-# async def grab(ctx):
-
-
 alive()
 TOKEN = os.environ.get('TOKEN')
-client.run(TOKEN)
+client.run('ODc3NDI1Mzg0ODY0NTAxNzYw.YRycEQ.tqx3yhBer4BlOXxyLAcYpxLG0cY')
