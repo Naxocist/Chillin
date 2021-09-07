@@ -76,4 +76,4 @@ async def anime(ctx):
 
 alive()
 TOKEN = os.environ.get('TOKEN')
-client.run('ODc3NDI1Mzg0ODY0NTAxNzYw.YRycEQ.tqx3yhBer4BlOXxyLAcYpxLG0cY')
+client.run(TOKEN)
