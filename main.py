@@ -10,7 +10,6 @@ import os
 import requests
 import asyncio
 
-
 gif_list = ["https://www.icegif.com/wp-content/uploads/icegif-10.gif",
             "https://i.kym-cdn.com/photos/images/newsfeed/000/543/398/2f3.gif",
             "https://c.tenor.com/dXeGgnB4u_sAAAAM/dragon-woman-anime.gif",
@@ -20,10 +19,10 @@ gif_list = ["https://www.icegif.com/wp-content/uploads/icegif-10.gif",
             "https://acegif.com/wp-content/uploads/2020/07/anime-sleep.gif"]
 
 command_ = {
-    '.date | .dat 🕒': 'Show current date and time',
     '.anime | .a    (●≧ω≦)9': 'Somehow pick random anime for fun!',
     '.animehentai | .ah ⚠': 'Delivered random hentai... :mailbox_with_mail:',
-    '.doujin [sauce here]| .d [sauce here] ⚠': 'Exactly, It\'s doujinshi :underage:'
+    '.doujin | .d [optional sauce] ⚠': 'Exactly, It\'s doujinshi :underage:',
+    '.date | .dat 🕒': 'Show current date and time'
 }
 
 client = commands.Bot(command_prefix=".",
@@ -119,25 +118,32 @@ async def animehentai(ctx):
     await ctx.send(embed=embed)
 
 
-@client.command(aliases=["d", "dou"])
+@client.command(aliases=["d", "magicnumber", "magic", "mg"])
 @commands.is_nsfw()
-async def doujin(ctx, code):
-    url = 'https://nhentai.net/g/' + code
-    print(url)
+async def doujin(ctx, code=''):
+    code = code.strip()
+    if code:
+        url = 'https://nhentai.net/g/' + code
+    else:
+        url = "https://nhentai.net/random/"
+
     request = requests.get(url).text
     soup = BeautifulSoup(request, 'html.parser')
-
     error = soup.find("div", class_="container error")
-    print("Error check:", error)
     if error:
         await ctx.send("` Fake Sauce!! `")
     else:
         pic = soup.find("img", class_="lazyload")['data-src']
         name = soup.find("span", class_="pretty").text
-        embed = discord.Embed(title=name, url=url, color=discord.Colour.random())
-        embed.add_field(name=f"Sauce `{code}` delivered!", value="Verified Sauce! Here you go.")
-        embed.set_image(url=pic)
+        id = soup.find("h3", id="gallery_id").text
+        embed = discord.Embed(title=name, url=f"https://nhentai.net/g/{id[1:]}", color=discord.Colour.random())
 
+        if code:
+            embed.add_field(name=f"Sauce `{code}` delivered!", value="Verified Sauce! Here you go.")
+        else:
+            embed.add_field(name=f"Random sauce => {id} delivered!", value="There you go!")
+
+        embed.set_image(url=pic)
         await ctx.send(embed=embed)
 
 
@@ -149,6 +155,6 @@ async def on_command_error(ctx, error):
 
 
 alive()
-TOKEN = os.environ.get('TOKEN')
-client.run(TOKEN)
-# client.run('ODg0Njk1Mjg2MDcxNTg2ODU3.YTcOsQ.WL5NqEvyozbxHjMevICJOSnKMro')
+# TOKEN = os.environ.get('TOKEN')
+# client.run(TOKEN)
+client.run('ODg0Njk1Mjg2MDcxNTg2ODU3.YTcOsQ.WL5NqEvyozbxHjMevICJOSnKMro')
