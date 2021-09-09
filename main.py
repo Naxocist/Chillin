@@ -1,14 +1,13 @@
 from discord.ext import commands
 from bs4 import BeautifulSoup
-from alive import alive
 from random import *
 from datetime import *
 from animelist import *
 import pytz
 import discord
-import os
 import requests
 import asyncio
+import os
 
 gif_list = ["https://www.icegif.com/wp-content/uploads/icegif-10.gif",
             "https://i.kym-cdn.com/photos/images/newsfeed/000/543/398/2f3.gif",
@@ -18,107 +17,90 @@ gif_list = ["https://www.icegif.com/wp-content/uploads/icegif-10.gif",
             "https://giffiles.alphacoders.com/140/14018.gif",
             "https://acegif.com/wp-content/uploads/2020/07/anime-sleep.gif"]
 
-command_ = {
-    '.anime | .a    (●≧ω≦)9': 'Somehow pick random anime for fun!',
-    '.animehentai | .ah ⚠': 'Delivered random hentai... :mailbox_with_mail:',
-    '.doujin | .d [optional sauce] ⚠': 'Exactly, It\'s doujinshi :underage:',
-    '.date | .dat 🕒': 'Show current date and time'
-}
-
 client = commands.Bot(command_prefix=".",
                       activity=discord.Activity(type=discord.ActivityType.watching, name="for .help"))
+
 client.remove_command('help')
 
 
-@client.event  # setup
-async def on_ready():
+def get_anime_name(specify):
+    possible = []
+    if not specify:
+        return choice(animes)
+
+    specify_list = specify.lower().split()
+    for g in genre:
+        if all(ele in g for ele in specify_list):
+            possible.append(animes[genre.index(g)])
+
+    return choice(possible)
+
+
+@client.event
+async def on_ready():  # Ready
     print("Chillin' bot is ready for her duty!")
 
 
-@client.command(pass_context=True, aliases=["commands", "command"])
-async def help(ctx):
-    embed = discord.Embed(title="Commands", color=discord.Colour.random())
+@client.command(aliases=['a'])  # random anime [optional genre]
+async def anime(ctx, *, specify=""):
+    anime = get_anime_name(specify)
 
-    for k, v in command_.items():
-        embed.add_field(name=k, value=v, inline=False)
-    embed.set_thumbnail(url=choice(gif_list))
+    g_list = genre[animes.index(anime)]
+    g_list.insert(4, "\n")
+    g_value = ' '.join([f"`{g.capitalize()}`" for g in g_list])
 
-    await ctx.send(embed=embed)
+    title = anime[:anime.index(":")] + '\n' + ">" + anime[anime.index(":") + 1:] if ':' in anime and len(anime) > 30 \
+        else anime
 
+    embed = discord.Embed(title=title, colour=discord.Colour.random())
 
-@client.command(aliases=['dat'])  # date function
-async def date(ctx):
-    now = datetime.now(pytz.timezone('Asia/Bangkok'))
-    text = str(now.strftime("%A, %d %b %Y %H:%M %p"))
-    d = discord.Embed(title=text, color=discord.Colour.random())
-
-    await ctx.send(embed=d)
-
-
-@client.command(aliases=['ani', 'anim', 'a'])  # random anime
-async def anime(ctx):
-    i = list(animes.items())
-    anime = choice(i)[0]
-
-    embed = discord.Embed(title=f"{anime}", url=f"{link[anime]}",
-                          colour=discord.Colour.random())
-
-    episode = "The movie" if ep[anime] == '1' else ep[anime] + " episodes"
+    episode = "`Movie`" if ep[anime] == '1' else f"`{ep[anime]}`" + " episodes"
     ss = "not specified" if episode == "The movie" else season[anime]
     image = pic[anime]
     ranked = rank[anime]
-    g_list = genre[anime].split(" ")
-    g_value = ' '.join(g_list)
-    if len(g_list) > 4:
-        g_list.insert(4, "\n")
-        g_value = ' '.join(g_list)
-
+    url = link[anime]
     embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
-    embed.add_field(name="Genre", value=g_value, inline=False)
-    embed.add_field(name="Season", value=ss, inline=True)
-    embed.add_field(name="**   **", value="**   **", inline=True)
-    embed.add_field(name="Length", value=episode, inline=True)
-    embed.add_field(name=f"Ranked: #{ranked}", value="Check it out!", inline=False)
 
-    embed.set_thumbnail(url=choice(gif_list))
+    embed.add_field(name="Genre", value=g_value, inline=False)
+    embed.add_field(name="Season", value=f"`{ss}`", inline=True)
+    embed.add_field(name="Length", value=episode, inline=True)
+    embed.add_field(name=f"Ranked: #`{ranked}`", value=f"[Check it out!]({url})", inline=False)
+
     embed.set_image(url=image)
-    embed.set_footer(text="Dataset based on MyAnimelist.net")
 
     await ctx.send(embed=embed)
 
 
-@client.command(aliases=["ah", "animehen", "anih"])
+@client.command(aliases=["ah"])
 @commands.is_nsfw()
 async def animehentai(ctx):
     anime = choice(nsfw)
     embed = discord.Embed(title=f"{anime}", url=link[anime], colour=discord.Colour.random())
 
-    episode = "The movie" if ep[anime] == '1' else ep[anime] + " episodes"
+    episode = "1 ep END" if ep[anime] == '1' else f"`{ep[anime]}`" + " ep"
     ss = "not specified" if episode == "The movie" else season[anime]
     image = pic[anime]
     ranked = rank[anime]
-    g_list = genre[anime].split(" ")
+    g_list = [f"`{g}`" for g in genre[anime].split(" ")]
     g_value = ' '.join(g_list)
     if len(g_list) > 4:
         g_list.insert(4, "\n")
         g_value = ' '.join(g_list)
 
     embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
-    embed.add_field(name="Genre", value=g_value, inline=False)
-    embed.add_field(name="Season", value=ss, inline=True)
-    embed.add_field(name="**   **", value="**   **", inline=True)
-    embed.add_field(name="Length", value=episode, inline=True)
-    embed.add_field(name=f"Ranked: #{ranked}", value="Check it out!", inline=False)
 
-    embed.set_thumbnail(url=choice(gif_list))
+    embed.add_field(name="Genre", value=g_value, inline=False)
+    embed.add_field(name="Season", value=f"`{ss}`", inline=True)
+    embed.add_field(name="Length", value=episode, inline=True)
+    embed.add_field(name=f"`{ranked}`", value="-"*40, inline=False)
+
     embed.set_image(url=image)
-    embed.set_footer(text="Dataset based on MyAnimelist.net")
     async with ctx.typing():
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.025)
     await ctx.send(embed=embed)
 
 
-@client.command(aliases=["d", "magicnumber", "magic", "mg"])
+@client.command(aliases=["d"])
 @commands.is_nsfw()
 async def doujin(ctx, code=''):
     code = code.strip()
@@ -126,9 +108,11 @@ async def doujin(ctx, code=''):
         url = 'https://nhentai.net/g/' + code
     else:
         url = "https://nhentai.net/random/"
+    async with ctx.typing():
+        request = requests.get(url).text
+        soup = BeautifulSoup(request, 'html.parser')
+        await asyncio.sleep(0.25)
 
-    request = requests.get(url).text
-    soup = BeautifulSoup(request, 'html.parser')
     error = soup.find("div", class_="container error")
     if error:
         await ctx.send("` Fake Sauce!! `")
@@ -141,20 +125,51 @@ async def doujin(ctx, code=''):
         if code:
             embed.add_field(name=f"Sauce `{code}` delivered!", value="Verified Sauce! Here you go.")
         else:
-            embed.add_field(name=f"Random sauce => {id} delivered!", value="There you go!")
+            embed.add_field(name=f"Random sauce => `{id}` delivered!", value="`There you go!`")
 
         embed.set_image(url=pic)
         await ctx.send(embed=embed)
 
 
+@client.command(aliases=['dat'])  # date function
+async def date(ctx):
+    now = datetime.now(pytz.timezone('Asia/Bangkok'))
+    text = str(now.strftime("%A, %d %b %Y %H:%M %p"))
+    d = discord.Embed(title=text, color=discord.Colour.random())
+
+    await ctx.send(embed=d)
+
+
+@client.command(pass_context=True, aliases=["commands", "command"])
+async def help(ctx):
+    embed = discord.Embed(title="Commands prefix: `.`", color=discord.Colour.random())
+    embed.set_thumbnail(url=choice(gif_list))
+
+    embed.add_field(name='`anime | a [optional genre seperated by space]`  :mailbox_with_mail:',
+                    value='> Somehow pick random anime for fun!')
+    embed.add_field(name='`date | dat`  🕒', value='> Show current date and time', inline=False)
+
+    embed.add_field(name='`animehentai | ah ⚠`', value='> Random rated Hentai :underage:', inline=True)
+    embed.add_field(name='`doujin | d [sauce number] ⚠`', value='> Doujin based on nhentai :bookmark_tabs:', inline=True)
+
+    invite = "https://discord.com/api/oauth2/authorize?client_id=877425384864501760&permissions=137439300672&scope=bot"
+    server = "https://discord.gg/3sAYuxc3aF"
+    me = "Naxocist#2982"
+
+    embed.add_field(name ="`⚠` >> NSFW text channel", value="-"*70, inline=False)
+    embed.add_field(name="Contact", value=f"[Invite!]({invite}) | [Server]({server})\nDeveloper: `{me}` ", inline=False)
+    await ctx.send(embed=embed)
+
+
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.NSFWChannelRequired):
-        warn = "⚠ This is not NSFW channel... ⚠"
-        await ctx.send(embed=discord.Embed(title=warn, color=discord.Colour.from_rgb(225, 225, 0)))
+        nsfw_warn = "⚠ This is not `N S F W` channel!"
+        await ctx.send(embed=discord.Embed(title=nsfw_warn, color=discord.Colour.from_rgb(225, 225, 0)))
+    if isinstance(error, commands.errors.CommandInvokeError):
+        genre_warn = "Invalid Genre!"
+        await ctx.send(embed=discord.Embed(title=genre_warn, description="May be typos?", color=discord.Colour.from_rgb(225, 225, 0)))
 
-
-alive()
 # TOKEN = os.environ.get('TOKEN')
 # client.run(TOKEN)
 client.run('ODg0Njk1Mjg2MDcxNTg2ODU3.YTcOsQ.WL5NqEvyozbxHjMevICJOSnKMro')

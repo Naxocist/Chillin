@@ -1,30 +1,30 @@
 import csv
 
-animes = {}
-genre = {}
+animes = []
+genre = []
+nsfw = []
+nsfw_genre = []
 ep = {}
 rank = {}
 pic = {}
 link = {}
 season = {}
-nsfw = []
 
 with open("animes.csv", 'r', encoding="utf-8") as f:
     reader = csv.reader(f)
     next(reader)
-
     for row in reader:
-        name = row[0]
-        if "Hentai" not in row[5]:
-            animes[name] = name
+        n = row[0]  # name
+        g = [i.lower() for i in row[5].split()]  # every rows
+
+        if "hentai" in g:  # filer hentai
+            nsfw.append(n)
+            nsfw_genre.append(g)
         else:
-            nsfw.append(name)
-        genre[name] = row[5]
-        ep[name] = row[1]
-        link[name] = row[2]
-        pic[name] = row[3]
-        season[name] = row[4]
-        rank[name] = row[6]
-
-
-
+            animes.append(n)
+            genre.append(g)
+        ep[n] = row[1]
+        link[n] = row[2]
+        pic[n] = row[3]
+        season[n] = row[4]
+        rank[n] = row[6]
