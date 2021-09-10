@@ -69,20 +69,15 @@ async def anime(ctx, *, specify=""):
     embed.set_image(url=image)
     msg = await ctx.send(embed=embed)
     await discord.Message.add_reaction(msg, "📬")
-    if "Magic" in g_value:
-        await discord.Message.add_reaction(msg, "✨")
-    if "Action" in g_value:
-        await discord.Message.add_reaction(msg, "👊")
-    if "Romance" in g_value:
-        await discord.Message.add_reaction(msg, "💗")
-    if "Supernatural" in g_value:
-        await discord.Message.add_reaction(msg, "🌪️")
-    if "Drama" in g_value:
-        await discord.Message.add_reaction(msg, "🎭")
-    if "Comedy" in g_value:
-        await discord.Message.add_reaction(msg, "😝")
-    if "Kids" in g_value:
-        await discord.Message.add_reaction(msg, "🧒")
+    r_possible = []
+    reaction_dict = {"Magic": "✨", "Action": "⚔", "Romance": "💗", "Supernatural": "🌪️", "Comedy": "😝",
+                     "Drama": "🎭", "Kids": "🧒", "School": "🏫", "Fantasy": "🐉", "Cars": "🏎", "Sports": "🏀",
+                     "Sci-fi": "🧪", "Game": "🎮", "Music": "🎶", "Superpower": "🦸", "Military": "🪖"}
+    for g, r in reaction_dict.items():
+        if g in g_value:
+            r_possible.append(r)
+    await discord.Message.add_reaction(msg, choice(r_possible)) if r_possible else \
+        await discord.Message.add_reaction(msg, "🔥")
 
 
 @client.command(aliases=["ah"])
@@ -91,7 +86,7 @@ async def animehentai(ctx):
     anime = choice(nsfw)
     embed = discord.Embed(title=f"{anime}", url=link[anime], colour=discord.Colour.random())
 
-    episode = "`1` ep" if ep[anime] == '1' else f"`{ep[anime]}`" + " epa"
+    episode = "`1` ep" if ep[anime] == '1' else f"`{ep[anime]}`" + " eps"
     ss = "not specified" if episode == "The movie" else season[anime]
     image = pic[anime]
     ranked = rank[anime]
@@ -109,7 +104,6 @@ async def animehentai(ctx):
 
     msg = await ctx.send(embed=embed)
     await discord.Message.add_reaction(msg, "📬")
-    await discord.Message.add_reaction(msg, "🔥")
     await discord.Message.add_reaction(msg, "💪")
 
 
@@ -146,7 +140,7 @@ async def doujin(ctx, code=""):
         embed.set_image(url=pic)
         msg = await ctx.send(embed=embed)
         await discord.Message.add_reaction(msg, "📬")
-        await discord.Message.add_reaction(msg, "🔞")
+        await discord.Message.add_reaction(msg, "👍🏻")
 
 
 @client.command(aliases=['dat'])  # date function
@@ -235,7 +229,7 @@ async def on_command_error(ctx, error):
                                            color=discord.Colour.from_rgb(225, 225, 0)))
     if isinstance(error, commands.errors.CommandInvokeError):
         genre_warn = "Something wrong!"
-        await ctx.send(embed=discord.Embed(title=genre_warn, description="> May be `typos` somewhere?",
+        await ctx.send(embed=discord.Embed(title=genre_warn, description="> Maybe `typos` somewhere?",
                                            color=discord.Colour.from_rgb(225, 225, 0)))
 
 
