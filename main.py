@@ -2,7 +2,7 @@ from discord.ext import commands
 from bs4 import BeautifulSoup
 from random import *
 from datetime import *
-from animelist import *
+from data import *
 import pytz
 import discord
 import requests
@@ -69,6 +69,20 @@ async def anime(ctx, *, specify=""):
     embed.set_image(url=image)
     msg = await ctx.send(embed=embed)
     await discord.Message.add_reaction(msg, "📬")
+    if "Magic" in g_value:
+        await discord.Message.add_reaction(msg, "✨")
+    if "Action" in g_value:
+        await discord.Message.add_reaction(msg, "👊")
+    if "Romance" in g_value:
+        await discord.Message.add_reaction(msg, "💗")
+    if "Supernatural" in g_value:
+        await discord.Message.add_reaction(msg, "🌪️")
+    if "Drama" in g_value:
+        await discord.Message.add_reaction(msg, "🎭")
+    if "Comedy" in g_value:
+        await discord.Message.add_reaction(msg, "😝")
+    if "Kids" in g_value:
+        await discord.Message.add_reaction(msg, "🧒")
 
 
 @client.command(aliases=["ah"])
@@ -89,7 +103,7 @@ async def animehentai(ctx):
     embed.add_field(name="Genre", value=g_value, inline=False)
     embed.add_field(name="Season", value=f"`{ss}`", inline=True)
     embed.add_field(name="Length", value=episode, inline=True)
-    embed.add_field(name=f"`{ranked}`", value="-"*40, inline=False)
+    embed.add_field(name=f"`{ranked}`", value="-" * 40, inline=False)
 
     embed.set_image(url=image)
 
@@ -135,19 +149,6 @@ async def doujin(ctx, code=""):
         await discord.Message.add_reaction(msg, "🔞")
 
 
-# @client.command(aliases=["fn"])
-# async def fanart(ctx, character):
-
-#
-# @client.command(aliases=["pop", "p"])
-# async def popular(ctx):
-#     url = "https://myanimelist.net/"
-#     async with ctx.typing():
-#         request = requests.get(url).text
-#         soup = BeautifulSoup(request, 'html.parser')
-#         await asyncio.sleep(0.25)
-
-
 @client.command(aliases=['dat'])  # date function
 async def date(ctx):
     now = datetime.now(pytz.timezone('Asia/Bangkok'))
@@ -156,30 +157,6 @@ async def date(ctx):
     async with ctx.typing():
         await asyncio.sleep(0.5)
     await ctx.send(embed=d)
-
-
-@client.command(pass_context=True, aliases=["commands", "command"])
-async def help(ctx):
-    embed = discord.Embed(title="Commands prefix: `.`", color=discord.Colour.random())
-    embed.set_thumbnail(url=choice(gif_list))
-
-    embed.add_field(name='`anime | a [optional genre seperated by space]`  📬',
-                    value='> Somehow pick random anime for YOU!')
-    embed.add_field(name='`date | dat`  🕒', value='> Show current date and time', inline=False)
-
-    embed.add_field(name='`animehentai | ah ⚠`', value='> Random rated Hentai :underage:', inline=True)
-    embed.add_field(name='`doujin | d [sauce number] ⚠`', value='> Doujin based on nhentai :bookmark_tabs:', inline=True)
-
-    invite = "https://discord.com/api/oauth2/authorize?client_id=877425384864501760&permissions=137439300672&scope=bot"
-    server = "https://discord.gg/3sAYuxc3aF"
-    me = "Naxocist#2982"
-
-    embed.add_field(name="`⚠` >> NSFW text channel", value="\u200b", inline=False)
-    embed.add_field(name="`📬` >> save the result..", value="-"*70)
-    embed.add_field(name="Contact", value=f"[Invite!]({invite}) | [Server]({server})\nDeveloper: `{me}` ", inline=False)
-    async with ctx.typing():
-        await asyncio.sleep(0.25)
-    await ctx.send(embed=embed)
 
 
 @client.event
@@ -191,14 +168,76 @@ async def on_reaction_add(reaction, user):
         await user.send(embed=reaction.message.embeds[0])
 
 
+@client.command(pass_context=True, aliases=["commands", "command"])
+async def help(ctx):
+    embed = discord.Embed(title="Just to mention the `SYMBOLS`...")
+    embed.set_thumbnail(url=choice(gif_list))
+
+    invite = "https://discord.com/api/oauth2/authorize?client_id=877425384864501760&permissions=137439300672&scope=bot"
+    server = "https://discord.gg/3sAYuxc3aF"
+    me = "Naxocist#2982"
+
+    embed.add_field(name="NSFW text channel", value="> ⚠", inline=True)
+    embed.add_field(name="Available to save the result!", value="> 📬", inline=True)
+    embed.add_field(name="Contact", value=f"[Invite!]({invite}) | [Server]({server})\nDeveloper: `{me}` ", inline=False)
+
+    async with ctx.typing():
+        await asyncio.sleep(0.25)
+    msg = await ctx.send(embed=embed)
+    await discord.Message.add_reaction(msg, "◀")
+    await discord.Message.add_reaction(msg, "▶")
+    pages = 2
+    cur_page = 1
+
+    def check(reaction, user):
+        return user == ctx.author and str(reaction.emoji) in ["◀", "▶"]  # check if author is the reactor
+
+    while True:
+        try:
+            reaction, user = await client.wait_for("reaction_add", timeout=60, check=check)  # stops the loop 60 sec
+
+            if str(reaction.emoji) == "▶" and cur_page != pages:
+                cur_page += 1
+                new_embed = discord.Embed(title="Commands Prefix: `.`")
+                new_embed.set_thumbnail(url=choice(gif_list))
+                new_embed.add_field(name='`anime | a` (optional genre seperated by space)  📬',
+                                    value='> Somehow pick random anime for YOU!')
+                new_embed.add_field(name='`date | dat`  🕒', value='> Tell current date and time', inline=False)
+                new_embed.add_field(name='`animehentai | ah ⚠`', value='> Random rated Hentai.  📬', inline=True)
+                new_embed.add_field(name='`doujin | d` (sauce number) `⚠`',
+                                    value='> Doujin based on nhentai  📬 ', inline=True)
+                await msg.edit(embed=new_embed)
+                await msg.remove_reaction(reaction, user)
+
+            elif str(reaction.emoji) == "◀" and cur_page > 1:
+                cur_page -= 1
+                new_embed = discord.Embed(title="Just to mention the `SYMBOLS`...")
+                new_embed.set_thumbnail(url=choice(gif_list))
+                new_embed.add_field(name="NSFW text channel", value="> ⚠", inline=True)
+                new_embed.add_field(name="Available to save the result!", value="> 📬", inline=True)
+                new_embed.add_field(name="Contact",
+                                    value=f"[Invite!]({invite}) | [Server]({server})\nDeveloper: `{me}`", inline=False)
+                await msg.edit(embed=new_embed)
+                await msg.remove_reaction(reaction, user)
+
+            else:
+                await msg.remove_reaction(reaction, user)
+        except asyncio.TimeoutError:
+            await msg.delete()
+            break
+
+
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.NSFWChannelRequired):
         nsfw_warn = "⚠ This is not `N S F W` channel!"
-        await ctx.send(embed=discord.Embed(title=nsfw_warn, color=discord.Colour.from_rgb(225, 225, 0)))
+        await ctx.send(embed=discord.Embed(title=nsfw_warn,
+                                           color=discord.Colour.from_rgb(225, 225, 0)))
     if isinstance(error, commands.errors.CommandInvokeError):
-        genre_warn = "Invalid Genre!"
-        await ctx.send(embed=discord.Embed(title=genre_warn, description="> May be `typos` somewhere?", color=discord.Colour.from_rgb(225, 225, 0)))
+        genre_warn = "Something wrong!"
+        await ctx.send(embed=discord.Embed(title=genre_warn, description="> May be `typos` somewhere?",
+                                           color=discord.Colour.from_rgb(225, 225, 0)))
+
 
 TOKEN = os.environ.get('TOKEN')
 client.run(TOKEN)
