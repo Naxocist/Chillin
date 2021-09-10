@@ -117,7 +117,7 @@ async def doujin(ctx, code=""):
         green = randint(1, 150)
         embed = discord.Embed(title="We don't know that sauce!", description="> May be `typos` somewhere?",
                               color=discord.Colour.from_rgb(225, green, 0))
-
+        await ctx.send(embed=embed)
     else:
         pic = soup.find("img", class_="lazyload")['data-src']
         name = soup.find("span", class_="pretty").text
@@ -130,9 +130,9 @@ async def doujin(ctx, code=""):
             embed.add_field(name=f"Random sauce => `{id}` delivered!", value="`There you go!`")
 
         embed.set_image(url=pic)
-    msg = await ctx.send(embed=embed)
-    await discord.Message.add_reaction(msg, "📬")
-    await discord.Message.add_reaction(msg, "🔞")
+        msg = await ctx.send(embed=embed)
+        await discord.Message.add_reaction(msg, "📬")
+        await discord.Message.add_reaction(msg, "🔞")
 
 
 # @client.command(aliases=["fn"])
