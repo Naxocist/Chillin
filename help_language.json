@@ -1,0 +1,32 @@
+{
+  "en": {
+    "h1": "Just to mention the `SYMBOLS`...",
+    "h2" : "Commands",
+    "nsfw" : "NSFW text channel",
+    "save_result" : "You can keep this anime in DM!",
+    "contact": "Contact",
+    "dev" : "Developer",
+    "genre": "genre(s)",
+    "_anime_info" : "> Pick you a random anime... \uD83D\uDCEC",
+    "_date_info" : "> Tell current date and time!",
+    "_ah_info" : "> Random rated Hentai. \uD83D\uDCEC",
+    "sauce": "sauce number",
+    "_doujin_info" : "> Doujin based on nhentai \uD83D\uDCEC",
+    "page": "Page"
+  },
+  "th": {
+    "h1" : "` สัญลักษณ์ที่ใช้ `",
+    "h2" : "คำสั่ง",
+    "nsfw" : "ช่อง NSFW เท่านั้น",
+    "save_result" : "เก็บเรื่องนี้ได้นะจ๊ะ!",
+    "contact" : "ช่องทางติดต่อ",
+    "dev" : "ผู้พัฒนา",
+    "genre": "ประเภทอนิเมะ",
+    "_anime_info" : "> สุ่มอนิเมะให้คุณท่านดูไงล่ะ \uD83D\uDCEC",
+    "_date_info" : "> แสดงวันเวลา ณ ตอนนี้",
+    "_ah_info" : "> เฮ็นไตหน่ะนะอืม \uD83D\uDCEC",
+    "sauce" : "ซอสกี่หลักก็ได้นะ",
+    "_doujin_info" : "> ก็โดจินแหละ จาก nhentai \uD83D\uDCEC",
+    "page": "หน้า"
+  }
+}
