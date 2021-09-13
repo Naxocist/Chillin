@@ -14,7 +14,16 @@ gif_list = ["https://c.tenor.com/c3ks1DYnyr4AAAAC/anime-anime-girl.gif",
             "https://c.tenor.com/Am61DGzxpGoAAAAC/anime-laughing.gif",
             "https://c.tenor.com/mkunLNebofwAAAAC/anime-headbang.gif",
             "https://c.tenor.com/H63Kb7qg8HoAAAAC/anime-chainsaw.gif",
-            "https://c.tenor.com/0XNOlxxAFvcAAAAC/chuunibyou-anime.gif"]
+            "https://c.tenor.com/0XNOlxxAFvcAAAAC/chuunibyou-anime.gif",
+            "https://c.tenor.com/MyhZzxE8vsQAAAAC/cute-eat.gif",
+            "https://c.tenor.com/FwQaJEGLhskAAAAC/cute-cat.gif",
+            "https://c.tenor.com/io_R8mA_oUgAAAAC/satania-anime.gif",
+            "https://c.tenor.com/jgFVzr3YeJwAAAAC/date-a-live-rage.gif",
+            "https://c.tenor.com/rnhV3fu39f8AAAAC/eating-anime.gif",
+            "https://c.tenor.com/UShPTojhFIkAAAAi/french-france-gun.gif",
+            "https://c.tenor.com/wOCOTBGZJyEAAAAC/chikku-neesan-girl-hit-wall.gif",
+            "https://c.tenor.com/FGLllO3BGxMAAAAC/baseball-body.gif",
+            "https://c.tenor.com/TPaJW2RZyIYAAAAC/anime-dodge.gif"]
 
 client = commands.Bot(command_prefix=".",
                       activity=discord.Activity(type=discord.ActivityType.watching, name="for .help"))
@@ -61,7 +70,7 @@ async def language(ctx, l=""):
 
         with open("language.json", "w", encoding="utf-8") as f:
             json.dump(lang, f, indent=4)
-        await ctx.send("Submitted!")
+        await ctx.send("`Changed successfully!`")
 
     else:
         await ctx.send(embed=discord.Embed(title="Supported languages",
@@ -107,6 +116,7 @@ async def anime(ctx, *, specify=""):
         embed.add_field(name=f"อันดับ: #`{ranked}`", value=f"[>ข้อมูลเพื่มเติม<]({url})", inline=False)
 
         embed.set_image(url=image)
+
     msg = await ctx.send(embed=embed)
     await discord.Message.add_reaction(msg, "📬")
     r_possible = []
@@ -249,7 +259,7 @@ async def help(ctx):  # help function
         sauce = d['sauce']
         _doujin_info = d['_doujin_info']
         page = d['page']
-
+        permission = d['permission']
     invite = "https://discord.com/api/oauth2/authorize?client_id=877425384864501760&permissions=137439308864&scope=bot"
     server = "https://discord.gg/3sAYuxc3aF"
     me = "Naxocist#2982"
@@ -263,11 +273,10 @@ async def help(ctx):  # help function
 
     p2 = discord.Embed(title=h2)
     p2.set_thumbnail(url=choice(gif_list))
-    p2.add_field(name=f"`.anime | .a [{_anime}]`", value=_anime_info)
-    p2.add_field(name="`.date | .dat`  🕒", value=_date_info, inline=False)
+    p2.add_field(name=f"`.anime | .a [{_anime}]`", value=_anime_info, inline=False)
     p2.add_field(name='`.animehentai | .ah` `⚠`', value=_ah_info, inline=True)
     p2.add_field(name=f'`.doujin | .d [{sauce}]` `⚠`', value=_doujin_info, inline=True)
-    p2.add_field(name="`.language | .lang *Only Administrator*`", value="> `th`: Thai  🇹🇭\n> `en`: English 🇺🇸",
+    p2.add_field(name=f"`.language | .lang *{permission}*`", value="> `th`: Thai  🇹🇭\n> `en`: English 🇺🇸",
                  inline=False)
     p2.set_footer(text=page + f" 2/2")
 
@@ -277,7 +286,7 @@ async def help(ctx):  # help function
     msg = await ctx.send(embed=p1)
     await discord.Message.add_reaction(msg, "◀")
     await discord.Message.add_reaction(msg, "▶")
-
+    await discord.Message.add_reaction(msg, "✅")
     pages = [p1, p2]
     i = 0
 
@@ -287,7 +296,6 @@ async def help(ctx):  # help function
     while True:
         try:
             reaction, user = await client.wait_for("reaction_add", timeout=60, check=check)  # stops the loop 60 sec
-
             if str(reaction.emoji) == "▶" and i != 1:
                 i += 1
                 await msg.edit(embed=pages[i])
@@ -341,6 +349,9 @@ async def on_guild_remove(guild):
 
 @client.event
 async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        return
+
     if "KeyError" in str(error):
         with open("language.json", "r", encoding="utf-8") as f:
             lang = json.load(f)
@@ -349,20 +360,24 @@ async def on_command_error(ctx, error):
 
         with open("language.json", "w", encoding="utf-8") as f:
             json.dump(lang, f, indent=4)
-        await ctx.send(embed=discord.Embed(title=f"Your server doesn't set any language!",
-                                           description="set default to `en` 🇺🇸", color=discord.Colour.red()))
+        await ctx.send(embed=discord.Embed(title=f"Setting up languages..", color=discord.Colour.red()))
+        async with ctx.typing():
+            await asyncio.sleep(0.5)
+        await ctx.send(embed=discord.Embed(title="Finished!", description="Set default language to `en` 🇺🇸 \n"
+                                                                          "> You can now use comands.",
+                                           color=discord.Colour.green()))
         return
 
     if get_language(ctx) == "en":
-
         if isinstance(error, commands.errors.NSFWChannelRequired):
             nsfw_warn = "⚠ This is not `N S F W` channel!"
             await ctx.send(embed=discord.Embed(title=nsfw_warn, color=discord.Colour.from_rgb(225, 225, 0)))
 
+
         else:
-            genre_warn = "Something wrong!"
+            genre_warn = "Typos!"
             await ctx.send(embed=discord.Embed(title=genre_warn,
-                                               description="> [Contact the support?](https://discord.gg/3sAYuxc3aF)",
+                                               description="> Type correctly next time..",
                                                color=discord.Colour.from_rgb(225, 225, 0)))
     else:
         if isinstance(error, commands.errors.NSFWChannelRequired):
@@ -370,12 +385,12 @@ async def on_command_error(ctx, error):
             await ctx.send(embed=discord.Embed(title=nsfw_warn,
                                                color=discord.Colour.from_rgb(225, 225, 0)))
         else:
-            genre_warn = "ระบบมีปัญหา!"
+            genre_warn = "ไม่มีคำสั่งนี้งับ"
             await ctx.send(embed=discord.Embed(title=genre_warn,
-                                               description="> [ติดต่อผม](https://discord.gg/3sAYuxc3aF)",
+                                               description="> ลองพิมพ์ใหม่น้าา",
                                                color=discord.Colour.from_rgb(225, 225, 0)))
 
 
-# TOKEN = os.environ.get('TOKEN')
-# client.run(TOKEN)
-client.run('ODg0Njk1Mjg2MDcxNTg2ODU3.YTcOsQ.WL5NqEvyozbxHjMevICJOSnKMro')
+TOKEN = os.environ.get('TOKEN')
+client.run(TOKEN)
+# client.run('ODg0Njk1Mjg2MDcxNTg2ODU3.YTcOsQ.WL5NqEvyozbxHjMevICJOSnKMro')
