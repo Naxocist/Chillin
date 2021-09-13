@@ -1,21 +1,12 @@
 from discord.ext import commands
+import discord
 from bs4 import BeautifulSoup
 from random import *
-from datetime import *
 from data_process import *
-import pytz
-import discord
 import requests
 import asyncio
-import os
 import json
-
-
-def get_language(msg):
-    with open("language.json", "r", encoding="utf-8") as f:
-        lang = json.load(f)
-    return lang[str(msg.guild.id)]
-
+import os
 
 gif_list = ["https://c.tenor.com/c3ks1DYnyr4AAAAC/anime-anime-girl.gif",
             "https://c.tenor.com/czmwFLhXJQ0AAAAC/anime-i-dont-know.gif",
@@ -29,6 +20,12 @@ client = commands.Bot(command_prefix=".",
                       activity=discord.Activity(type=discord.ActivityType.watching, name="for .help"))
 
 client.remove_command('help')
+
+
+def get_language(msg):
+    with open("language.json", "r", encoding="utf-8") as f:
+        lang = json.load(f)
+    return lang[str(msg.guild.id)]
 
 
 def get_anime_name(specify):
@@ -49,33 +46,9 @@ async def on_ready():  # Ready
     print("Chillin' bot is ready for her duty!")
 
 
-@client.event
-async def on_guild_join(guild):
-    with open("language.json", "r", encoding="utf-8") as f:
-        lang = json.load(f)
-    print("Joined", guild.id)
-
-    lang[str(guild.id)] = "en"
-
-    with open("language.json", "w", encoding="utf-8") as f:
-        json.dump(lang, f, indent=4)
-
-
-@client.event
-async def on_guild_remove(guild):
-    with open("language.json", "r", encoding="utf-8") as f:
-        lang = json.load(f)
-
-    lang.pop(str(guild.id))
-
-    with open("language.json", "w", encoding="utf-8") as f:
-        json.dump(lang, f, indent=4)
-
-
 @client.command(pass_context=True, aliases=["lang"])
 @commands.has_permissions(administrator=True)
 async def language(ctx, l=""):
-
     if l == "":
         flag = "🇹🇭" if get_language(ctx) == "th" else "🇺🇸"
         await ctx.send(f"Current language `{get_language(ctx)}` {flag}")
@@ -222,7 +195,7 @@ async def doujin(ctx, code=""):
             name_list = soup.find("h1", class_="title")
             name = [i.text for i in name_list]
             id = soup.find("h3", id="gallery_id").text
-            embed = discord.Embed(title=name[0]+name[1]+name[2], url=f"https://nhentai.net/g/{id[1:]}",
+            embed = discord.Embed(title=name[0] + name[1] + name[2], url=f"https://nhentai.net/g/{id[1:]}",
                                   color=discord.Colour.random())
             if code:
                 embed.add_field(name=f"Sauce # `{code}` delivered!", value="Verified Sauce! Here you go.")
@@ -244,7 +217,7 @@ async def doujin(ctx, code=""):
             name_list = soup.find("h1", class_="title")
             name = [i.text for i in name_list]
             id = soup.find("h3", id="gallery_id").text
-            embed = discord.Embed(title=name[0]+name[1]+name[2], url=f"https://nhentai.net/g/{id[1:]}",
+            embed = discord.Embed(title=name[0] + name[1] + name[2], url=f"https://nhentai.net/g/{id[1:]}",
                                   color=discord.Colour.random())
             if code:
                 embed.add_field(name=f"ซอส # `{code}` มาส่งละ!", value="ซอสของจริงหว่ะ!")
@@ -256,25 +229,6 @@ async def doujin(ctx, code=""):
             msg = await ctx.send(embed=embed)
             await discord.Message.add_reaction(msg, "📬")
             await discord.Message.add_reaction(msg, "👍🏻")
-
-
-@client.command(aliases=['dat'])  # date function
-async def date(ctx):
-    now = datetime.now(pytz.timezone('Asia/Bangkok'))
-    text = str(now.strftime("%A, %d %b %Y %H:%M %p"))
-    d = discord.Embed(title=text, color=discord.Colour.random())
-    async with ctx.typing():
-        await asyncio.sleep(0.5)
-    await ctx.send(embed=d)
-
-
-@client.event
-async def on_reaction_add(reaction, user):  # check reaction
-    if user == client.user:
-        return
-    if reaction.emoji == "📬":
-        await reaction.message.add_reaction("✅")
-        await user.send(embed=reaction.message.embeds[0])
 
 
 @client.command(pass_context=True, aliases=["commands", "command"])
@@ -295,65 +249,94 @@ async def help(ctx):  # help function
         sauce = d['sauce']
         _doujin_info = d['_doujin_info']
         page = d['page']
-    embed = discord.Embed(title=h1)
-    embed.set_thumbnail(url=choice(gif_list))
 
     invite = "https://discord.com/api/oauth2/authorize?client_id=877425384864501760&permissions=137439308864&scope=bot"
     server = "https://discord.gg/3sAYuxc3aF"
     me = "Naxocist#2982"
-    pages = 2
-    cur_page = 1
 
-    embed.add_field(name=nsfw, value="> ⚠", inline=True)
-    embed.add_field(name=save_result, value="> 📬", inline=True)
-    embed.add_field(name=contact, value=f"[Invite!]({invite}) | [Server]({server})\n{dev}: `{me}` ", inline=False)
-    embed.set_footer(text=page + f" {cur_page}/{pages}")
+    p1 = discord.Embed(title=h1)
+    p1.set_thumbnail(url=choice(gif_list))
+    p1.add_field(name=nsfw, value="> ⚠", inline=True)
+    p1.add_field(name=save_result, value="> 📬", inline=True)
+    p1.add_field(name=contact, value=f"[Invite!]({invite}) | [Server]({server})\n{dev}: `{me}` ", inline=False)
+    p1.set_footer(text=page + f" 1/2")
+
+    p2 = discord.Embed(title=h2)
+    p2.set_thumbnail(url=choice(gif_list))
+    p2.add_field(name=f"`.anime | .a [{_anime}]`", value=_anime_info)
+    p2.add_field(name="`.date | .dat`  🕒", value=_date_info, inline=False)
+    p2.add_field(name='`.animehentai | .ah` `⚠`', value=_ah_info, inline=True)
+    p2.add_field(name=f'`.doujin | .d [{sauce}]` `⚠`', value=_doujin_info, inline=True)
+    p2.add_field(name="`.language | .lang *Only Administrator*`", value="> `th`: Thai  🇹🇭\n> `en`: English 🇺🇸",
+                 inline=False)
+    p2.set_footer(text=page + f" 2/2")
 
     async with ctx.typing():
         await asyncio.sleep(0.25)
-    msg = await ctx.send(embed=embed)
+
+    msg = await ctx.send(embed=p1)
     await discord.Message.add_reaction(msg, "◀")
     await discord.Message.add_reaction(msg, "▶")
 
+    pages = [p1, p2]
+    i = 0
+
     def check(reaction, user):
-        return user == ctx.author and str(reaction.emoji) in ["◀", "▶"]  # check if author is the reactor
+        return user == ctx.author and str(reaction.emoji) in ["◀", "▶"]
 
     while True:
         try:
-            reaction, user = await client.wait_for("reaction_add", timeout=30, check=check)  # stops the loop 60 sec
+            reaction, user = await client.wait_for("reaction_add", timeout=60, check=check)  # stops the loop 60 sec
 
-            if str(reaction.emoji) == "▶" and cur_page != pages:
-                cur_page += 1
-                new_embed = discord.Embed(title=h2)
-                new_embed.set_thumbnail(url=choice(gif_list))
-                new_embed.add_field(name=f"`.anime | .a [{_anime}]`", value=_anime_info)
-                new_embed.add_field(name="`.date | .dat`  🕒", value=_date_info, inline=False)
-                new_embed.add_field(name='`.animehentai | .ah` `⚠`', value=_ah_info, inline=True)
-                new_embed.add_field(name=f'`.doujin | .d [{sauce}]` `⚠`', value=_doujin_info, inline=True)
-                new_embed.add_field(name="`.language | .lang *Only Administrator*`", value="> `th`: Thai  🇹🇭\n> `en`: English 🇺🇸",
-                                    inline=False)
-                new_embed.set_footer(text=page+f" {cur_page}/{pages}")
-                await msg.edit(embed=new_embed)
+            if str(reaction.emoji) == "▶" and i != 1:
+                i += 1
+                await msg.edit(embed=pages[i])
                 await msg.remove_reaction(reaction, user)
 
-            elif str(reaction.emoji) == "◀" and cur_page > 1:
-                cur_page -= 1
-                new_embed = discord.Embed(title=h1)
-                new_embed.set_thumbnail(url=choice(gif_list))
-                new_embed.add_field(name=nsfw, value="> ⚠", inline=True)
-                new_embed.add_field(name=save_result, value="> 📬", inline=True)
-                new_embed.add_field(name=contact,
-                                    value=f"[Invite!]({invite}) | [Server]({server})\n{dev}: `{me}`", inline=False)
-                new_embed.set_footer(text=page + f" {cur_page}/{pages}")
-                await msg.edit(embed=new_embed)
+            elif str(reaction.emoji) == "◀" and i > 0:
+                i -= 1
+                await msg.edit(embed=pages[i])
                 await msg.remove_reaction(reaction, user)
 
             else:
                 await msg.remove_reaction(reaction, user)
-        except asyncio.TimeoutError:
+
+        except asyncio.TimeoutError:  # TimeOut
             await msg.delete()
             await ctx.message.delete()
             break
+
+
+@client.event
+async def on_reaction_add(reaction, user):  # check reaction
+    if user == client.user:
+        return
+    if reaction.emoji == "📬":
+        await reaction.message.add_reaction("✅")
+        await user.send(embed=reaction.message.embeds[0])
+
+
+@client.event
+async def on_guild_join(guild):
+    with open("language.json", "r", encoding="utf-8") as f:
+        lang = json.load(f)
+    print("Joined", guild.id)
+
+    lang[str(guild.id)] = "en"
+
+    with open("language.json", "w", encoding="utf-8") as f:
+        json.dump(lang, f, indent=4)
+
+
+@client.event
+async def on_guild_remove(guild):
+    with open("language.json", "r", encoding="utf-8") as f:
+        lang = json.load(f)
+
+    lang.pop(str(guild.id))
+
+    with open("language.json", "w", encoding="utf-8") as f:
+        json.dump(lang, f, indent=4)
 
 
 @client.event
@@ -369,16 +352,12 @@ async def on_command_error(ctx, error):
         await ctx.send(embed=discord.Embed(title=f"Your server doesn't set any language!",
                                            description="set default to `en` 🇺🇸", color=discord.Colour.red()))
         return
+
     if get_language(ctx) == "en":
 
         if isinstance(error, commands.errors.NSFWChannelRequired):
             nsfw_warn = "⚠ This is not `N S F W` channel!"
             await ctx.send(embed=discord.Embed(title=nsfw_warn, color=discord.Colour.from_rgb(225, 225, 0)))
-
-        elif isinstance(error, commands.errors.CommandError):
-            warn = "Type something wrong?"
-            await ctx.send(embed=discord.Embed(title=warn, description="> maybe `typos` somewhere...",
-                                               color=discord.Colour.from_rgb(225, 225, 0)))
 
         else:
             genre_warn = "Something wrong!"
@@ -390,17 +369,13 @@ async def on_command_error(ctx, error):
             nsfw_warn = "⚠ ที่นี่ไม่ใช่ช่อง ` NSFW `"
             await ctx.send(embed=discord.Embed(title=nsfw_warn,
                                                color=discord.Colour.from_rgb(225, 225, 0)))
-        elif isinstance(error, commands.errors.CommandError):
-            warn = "พิมพ์ผิดหรือคร้าบบ?"
-            await ctx.send(embed=discord.Embed(title=warn,
-                                               description="> อาจ `ผิด` ก็ได้นะ",
-                                               color=discord.Colour.from_rgb(225, 225, 0)))
         else:
             genre_warn = "ระบบมีปัญหา!"
             await ctx.send(embed=discord.Embed(title=genre_warn,
                                                description="> [ติดต่อผม](https://discord.gg/3sAYuxc3aF)",
                                                color=discord.Colour.from_rgb(225, 225, 0)))
 
-TOKEN = os.environ.get('TOKEN')
-client.run(TOKEN)
-# client.run('ODg0Njk1Mjg2MDcxNTg2ODU3.YTcOsQ.WL5NqEvyozbxHjMevICJOSnKMro')
+
+# TOKEN = os.environ.get('TOKEN')
+# client.run(TOKEN)
+client.run('ODg0Njk1Mjg2MDcxNTg2ODU3.YTcOsQ.WL5NqEvyozbxHjMevICJOSnKMro')
