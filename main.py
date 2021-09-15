@@ -393,4 +393,3 @@ async def on_command_error(ctx, error):
 
 TOKEN = os.environ.get('TOKEN')
 client.run(TOKEN)
-# client.run('ODg0Njk1Mjg2MDcxNTg2ODU3.YTcOsQ.WL5NqEvyozbxHjMevICJOSnKMro')
