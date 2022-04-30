@@ -13,4 +13,3 @@ if __name__ == "__main__":
     
     TOKEN = os.environ.get('TOKEN')
     client.run(TOKEN) 
-    # client.run("ODg5MDg4NTY2OTY0MTMzOTU5.YUcKQA.yfJrnWqruItmlIdEAj86R3Sdm5I")
